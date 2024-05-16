@@ -12,6 +12,9 @@ FROM eclipse-temurin:22-jre-alpine
 WORKDIR /app
 
 COPY --from=build /tmp/app/target/*.jar /app/app.jar
-EXPOSE 8080
+COPY start.sh start.sh
+RUN chmod +x start.sh
+RUN apk update && apk add --update apk-cron
+RUN echo "* * * * * /app/start.sh" > /etc/crontabs/root
 
-CMD ["java","-jar","app.jar"]
+CMD ["crond", "-f", "-l", "0"]

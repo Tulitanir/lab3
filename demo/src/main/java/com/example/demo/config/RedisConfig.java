@@ -7,15 +7,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Configuration
 public class RedisConfig {
     @Bean
-    public RedisTemplate<String, Date> stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Date> template = new RedisTemplate<String, Date>();
-        template.setConnectionFactory(redisConnectionFactory);
-        template.setValueSerializer(new GenericToStringSerializer<Date>(Date.class));
-        return template;
+    public StringRedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        return new StringRedisTemplate(redisConnectionFactory);
     }
 }
