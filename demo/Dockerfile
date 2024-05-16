@@ -1,4 +1,4 @@
-FROM openjdk:22-jdk as build
+﻿FROM openjdk:22-jdk as build
 WORKDIR /tmp/app
 
 COPY mvnw .
@@ -17,4 +17,4 @@ RUN chmod +x start.sh
 RUN apk update && apk add --update apk-cron
 RUN echo "* * * * * /app/start.sh" > /etc/crontabs/root
 
-CMD ["crond", "-f", "-l", "0"]
+CMD ["crond", "-f", "-d", "8"]
