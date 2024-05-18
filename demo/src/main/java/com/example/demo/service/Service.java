@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.entity.ImportantRecord;
 import com.example.demo.repository.ImportantEntityRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,17 +14,21 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@AllArgsConstructor
 public class Service {
     private final StringRedisTemplate redisTemplate;
     private final ImportantEntityRepository repo;
+    private final String LOCK_KEY = "lock";
+    private final long TIMEOUT = 10;
+
+    public Service(StringRedisTemplate redisTemplate, ImportantEntityRepository repo) {
+        this.redisTemplate = redisTemplate;
+        this.repo = repo;
+    }
 
     public void run() throws InterruptedException {
-        String data = redisTemplate.opsForValue().get("lock");
-        if (data == null) {
+        Boolean isAcquired = redisTemplate.opsForValue().setIfAbsent("lock", "locked", TIMEOUT, TimeUnit.SECONDS);
+        if (Boolean.TRUE.equals(isAcquired)) {
             int len1 = ((Collection<ImportantRecord>)repo.findAll()).size();
-            redisTemplate.opsForValue().set("lock", "lock");
-            redisTemplate.expire("lock", 10, TimeUnit.SECONDS);
 
             ImportantRecord entity = new ImportantRecord();
             entity.setDate(LocalDateTime.now());
